@@ -37,15 +37,17 @@ export class AuthService {
   }
 
   private async generateToken(userId: number) {
-    return this.jwtService.sign(String(userId));
+    return this.jwtService.sign({}, {
+      subject: String(userId)
+    });
   }
 
-  async checkToken(token : string){
+  async checkToken(token: string) {
     try {
       const isValid = this.jwtService.verify(token);
       return isValid;
     } catch (error) {
-        throw new UnauthorizedException("Invalid token")
+      throw new UnauthorizedException("Invalid token")
     }
   }
 }
