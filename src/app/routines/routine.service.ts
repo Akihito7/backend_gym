@@ -21,6 +21,7 @@ export class RoutineService {
     r.id AS routine_id,
     r.name AS routine_name,
     r.description,
+    r.image,
     json_agg(
       json_build_object(
         'name', e.name,
