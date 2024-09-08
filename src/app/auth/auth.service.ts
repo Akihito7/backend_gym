@@ -1,14 +1,21 @@
-import { ConflictException, Injectable } from "@nestjs/common";
+import { ConflictException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { pool } from "src/config/database";
-import { hash } from "bcrypt"
+import { compare, hash } from "bcrypt"
 
 
 @Injectable()
 export class AuthService {
   constructor(private readonly jwtService: JwtService) { }
-  async signln() {
-    return "ok"
+  async signln(body: any) {
+    const user = await pool.query(`SELECT * FROM users WHERE email = $1`, [body.email])
+    if (!user.rows[0]) throw new UnauthorizedException('Incorrect email or password');
+    const passwordMatch = await compare(body.password, user.rows[0].password);
+    if (!passwordMatch) throw new UnauthorizedException('Incorrect email or password');
+    const token = await this.generateToken(user.rows[0].id);
+    return {
+      token
+    }
   }
 
   async signup(body: any) {
