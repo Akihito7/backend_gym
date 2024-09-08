@@ -17,7 +17,7 @@ export class RoutineService {
   async fetchRoutineWithExercises(routineId: number) {
     try {
       const query = `
-     SELECT
+SELECT
     r.id AS routine_id,
     r.name AS routine_name,
     r.description,
@@ -26,7 +26,7 @@ export class RoutineService {
       json_build_object(
         'name', e.name,
         'gif', e.gif,
-        'series', (
+        'series', COALESCE((
           SELECT json_agg(
             json_build_object(
               'series_number', s.series_number,
@@ -36,7 +36,7 @@ export class RoutineService {
           )
           FROM routine_series AS s
           WHERE s.routine_exercise_id = re.id
-        )
+        ), '[]'::json)
       )
     ) AS exercises
 FROM
@@ -46,12 +46,13 @@ JOIN
 JOIN
     exercises AS e ON e.id = re.exercise_id
 WHERE
-    r.user_id = 1
+    r.user_id = 2
     AND r.id = $1
 GROUP BY
-    r.id, r.name, r.description;
+    r.id, r.name, r.description, r.image;
     `;
     const result = await pool.query(query, [routineId]);
+    console.log(result.rows)
     return result.rows[0];
     } catch (error) {
       throw new HttpException(
