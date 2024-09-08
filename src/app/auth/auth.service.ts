@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, ConflictException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { pool } from "src/config/database";
 import { compare, hash } from "bcrypt"
@@ -38,5 +38,14 @@ export class AuthService {
 
   private async generateToken(userId: number) {
     return this.jwtService.sign(String(userId));
+  }
+
+  async checkToken(token : string){
+    try {
+      const isValid = this.jwtService.verify(token);
+      return isValid;
+    } catch (error) {
+        throw new UnauthorizedException("Invalid token")
+    }
   }
 }

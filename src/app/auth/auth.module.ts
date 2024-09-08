@@ -8,6 +8,7 @@ import { JwtModule } from "@nestjs/jwt";
     secret: "xama44"
   })],
   controllers: [AuthController],
-  providers: [AuthService]
+  providers: [AuthService],
+  exports : [AuthService]
 })
 export class AuthModule { }
